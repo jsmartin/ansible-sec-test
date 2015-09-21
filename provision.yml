@@ -1,0 +1,10 @@
+- hosts: localhost
+  roles:
+  - infra
+
+- hosts: launched
+  remote_user: root
+  roles:
+  - apache
+  - shellshock
+

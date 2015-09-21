@@ -1,0 +1,30 @@
+---
+# tasks file for shellshock
+- meta: flush_handlers
+
+- name: sets up bash cgi script
+  copy: 
+    src: shockme.cgi 
+    dest: /var/www/cgi-bin/shockme.cgi
+    mode: 0755
+
+- name: run exploit
+  local_action: script shellshock.sh {{ inventory_hostname }}
+  ignore_errors: yes
+
+- name: detect if exploit was successful
+  stat: 
+    path: /tmp/shellshock
+  register: result
+
+- name: assert that the file was created
+  assert:
+    that: result.stat.exists == True
+
+- name: get contents of file
+  command: cat /tmp/shellshock
+  register: result
+
+- name: assert that contents of file are what we expect
+  assert:
+    that: result.stdout == "VULNERABLE"
